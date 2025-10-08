@@ -87,9 +87,9 @@ To assemble our contigs, we will use Spades in Phyluce. This process will be the
 
 ```
 [samples]
-Lyco_capucinus_BM8141_SG:/home/jbernstein/nas5/data_nas5/lyconotus/lycodon_phyluce/illumiprocessor/clean-fastq/Lyco_capucinus_BM8141_SG/split-adapter-quality-trimmed/
-Lyco_aulicus_BM8156_SG:/home/jbernstein/nas5/data_nas5/lyconotus/lycodon_phyluce/illumiprocessor/clean-fastq/Lyco_aulicus_BM8156_SG/split-adapter-quality-trimmed/
-Lyco_zawi_CAS215570_MM:/home/jbernstein/nas5/data_nas5/lyconotus/lycodon_phyluce/illumiprocessor/clean-fastq/Lyco_zawi_CAS215570_MM/split-adapter-quality-trimmed/
+Lyco_capucinus_BM8141_SG:/home/jbernstein/nas5/data_nas5/lyconotus/lycodon_phyluce/illumiprocessor/clean-fastq/Lyco_capucinus/split-adapter-quality-trimmed/
+Lyco_aulicus_BM8156_SG:/home/jbernstein/nas5/data_nas5/lyconotus/lycodon_phyluce/illumiprocessor/clean-fastq/Lyco_aulicus/split-adapter-quality-trimmed/
+Lyco_zawi_CAS215570_MM:/home/jbernstein/nas5/data_nas5/lyconotus/lycodon_phyluce/illumiprocessor/clean-fastq/Lyco_zawi/split-adapter-quality-trimmed/
 ```
 
 The paths need to be exact, as does the naming scheme you used. An important thing to note is that here, Spades' default maximum memory capacity is 8 GB. So even if, in the cluster or on a personal computer, you are giving more memory to your analysis, you need to utilize the `--memory` flag and allow Spades to ues the full amount of memory you want (I am giving is 244 GB since it is a 256 GB cluster node). Even if you specify 244 GB in your Slurm or PBS job submission script, Spades will still cap out at 8 GB of memory without the `--memory` flag:
@@ -158,10 +158,10 @@ When extracting the UCE loci, we can (and need to) specify which samples we want
 
 ```bash
 [all]
-Stegonotus_admiraltiensis_CCA2042_PNG26
-Stegonotus_admiraltiensis_CCA2087_PNG27
-Stegonotus_batjanensis_BJE1404_PNG28
-Stegonotus_batjanensis_BJE1475_PNG29
+Stegonotus__PNG26
+Stegonotus_PNG27
+Stegonotus_PNG28
+Stegonotus_PNG29
 ```
 
 We also need to make a directory for the outputs:
@@ -199,8 +199,8 @@ sort all-taxa-incomplete.conf | uniq -d
 Important note: This part of the phyluce pipeline seems to run into issues when there are hyphens/dashes in the names instead of underscores. You will get errors saying that {sample_name} was not found. If this happens, you should copy your contigs into a different directory I called this `contigs-combined-underscores` and rename them. For example, if we had the below samples, we would change them as follows:
 
 ```bash
-mv Boig_dendrophila_FMNH270023_MY-BRN Boig_dendrophila_FMNH270023_MY_BRN
-mv Boig_drapiezii_FMNH269070_MY-BRN Boig_drapiezii_FMNH269070_MY_BRN
+mv Boig_dendrophila-BRN Boig_dendrophila_BRN
+mv Boig_drapiezii-BRN Boig_drapiezii_BRN
 ```
 
 Finally, we can get our FASTAs from our targeted UCEs!
@@ -472,16 +472,16 @@ java -jar astral.5.7.8.jar -i 75p_fresh_iqtrees.tre -a mapping_file.txt -o Homal
 To perform a divergence date estimation on our species tree (ASTRAL), we will use a phylogenetic penalized likelihood approach with [treePL](https://github.com/blackrim/treePL). The analysis is rather simple to execute and requires a Newick format of your species tree (you can convert it to Newick format in FigTree by exporting it) and a configuration (config) file. This config file will look like this:
 
 ```
-treefile = Stegonotus-Lycodon_E75p_ASTRAL.newick.tre
+treefile = E75p_ASTRAL.newick.tre
 smooth = 100
 numsites = 3249042 
-mrca = COLUBROIDEA P_pulverulentus T_dendrophiops 
+mrca = COLUBROIDEA P_pu T_d
 min = COLUBROIDEA 35.2 
 max = COLUBROIDEA 46.76
-mrca = COLU-NATR T_dendrophiops Ly_flavozonatum 
+mrca = COLU-NATR T_de Ly_f
 min = COLU-NATR 39.9 
 max = COLU-NATR 43.0
-mrca = DAV-BAT Ly_davidsonii St_batjanensis
+mrca = DAV-BAT Ly_da St_b
 min = DAV-BAT 17.8 
 max = DAV-BAT 17.8
 outfile = stegonotus-lycodon_fresh_treePL.out.tre 
@@ -507,7 +507,7 @@ moredetailcvad
 #seed = number
 ```
 
-You will need to provide the number of sites (numsites) that you made the ASTRAL tree based off of. Note that in this tree we are using the stem-Colubroidea fossil calibration from [Smith (2013)](https://doi.org/10.1016/j.jcz.2012.05.006) to set a minimum date of 35.2 million years ago, and used [Burbrink et al.&#39;s (2020)](https://doi.org/10.1093/sysbio/syz062) upper end of the 95% highest posterior density interval for the upper bound. I also set a secondary calibration using the 95% HPD from Burbrink et al. (2020) for the MRCA of Colubridae and Natricidae, and another secondary calibration from [Zaher et al.&#39;s (2019)](https://doi.org/10.1371/journal.pone.0216148) study to set a strict date for the *L. davisonii*-*L.batajanensis* node. This script was ran with the *prime* and *thorough* commands first, then I added parameters suggested by *prime*, and then I commented out *prime* and uncommonted the *randomcv* option. The output of that run will provide a `cv.out` file, in which the lowest error will give you the recommended smooth value (1000 in this case). Finally, after entering the smoothing value, make sure *cvout* and *prime* are commented out (leave the *thorough* command uncommented), and run the analysis to get your dated tree.
+You will need to provide the number of sites (numsites) that you made the ASTRAL tree based off of. Note that in this tree we are using the stem-Colubroidea fossil calibration from [Smith (2013)](https://doi.org/10.1016/j.jcz.2012.05.006) to set a minimum date of 35.2 million years ago, and used [Burbrink et al.&#39;s (2020)](https://doi.org/10.1093/sysbio/syz062) upper end of the 95% highest posterior density interval for the upper bound. I also set a secondary calibration using the 95% HPD from Burbrink et al. (2020) for the MRCA of Colubridae and Natricidae, and another secondary calibration from [Zaher et al.&#39;s (2019)](https://doi.org/10.1371/journal.pone.0216148) study to set a strict date for the *L. davisonii*-*S.batajanensis* node. This script was ran with the *prime* and *thorough* commands first, then I added parameters suggested by *prime*, and then I commented out *prime* and uncommonted the *randomcv* option. The output of that run will provide a `cv.out` file, in which the lowest error will give you the recommended smooth value (1000 in this case). Finally, after entering the smoothing value, make sure *cvout* and *prime* are commented out (leave the *thorough* command uncommented), and run the analysis to get your dated tree.
 
 You can easily visualize this with FigTree, or make it look a bit fancier with some R code:
 
@@ -535,4 +535,5 @@ geoscalePhylo(tree=ladderize(t,right=TRUE), units=c("Period", "Epoch"), boxes="E
               cex.tip =0.8, cex.age=0.7, cex.ts=0.7, label.offset=0, x.lim=c(-15,45), lwd=3, width=2) 
 dev.off()
 ```
+
 
