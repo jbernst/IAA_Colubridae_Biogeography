@@ -1,4 +1,4 @@
-# Lycodon and Stegonotus Phylogenomics README
+# Phylogenomics README
 
 This project will involve a phylogenomic assesment of the snake genera *Lycodon* and *Stegonotus* using Ultraconserved Elements (UCEs).
 
@@ -535,5 +535,6 @@ geoscalePhylo(tree=ladderize(t,right=TRUE), units=c("Period", "Epoch"), boxes="E
               cex.tip =0.8, cex.age=0.7, cex.ts=0.7, label.offset=0, x.lim=c(-15,45), lwd=3, width=2) 
 dev.off()
 ```
+
 
 
